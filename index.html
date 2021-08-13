@@ -12,6 +12,7 @@
         margin-bottom: .75em;
         margin-right: .75em;
         padding: 0;
+        width: 15rem;
       }
       .sum-helper-wrapper {
         padding: 5px;
@@ -139,7 +140,6 @@
           },
           invalidOptions: function(){
             let combos = this.$parent.getCombos(this.size,this.total,this.included,this.excluded)
-console.log(combos)
             return combos == undefined || combos.length < 1
           }
         },
@@ -327,7 +327,7 @@ console.log(combos)
           }
         },
         template: `
-          <div class="sum-helper col-2" :id="helper.id">
+          <div class="sum-helper" :id="helper.id">
             <i v-on:click="removeHelper" class="bi bi-x-square remove-helper"></i>
             <div class="sum-helper-wrapper">
               <div class="helper-header">
