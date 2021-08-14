@@ -184,7 +184,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-lg-6">You may enter 0 (meaning undefined value) for either size or total or both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness. Do note that if leaving both size and total blank, give it a second for the algorithm to generate the possibilites and filter them.</div>
+            <div class="col-12 col-lg-6">You may enter 0 (meaning undefined value) for either size or total or both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness.</div>
             <div class="row">
               <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-lg-3 col-12  offset-md-2" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
             </div>
@@ -395,10 +395,10 @@
             return sum;
           },
           getCombos: function(size,total,included,excluded) {
-            if ((size == '' || size == 0) && (total == 0 || total == '') ){
-              return this.allCombinations(included,excluded)
-            }
             if ( included == "" && excluded == '' ){
+              if ( size == 0 && total == 0 ){
+                return this.allCombinations
+              }
               if ( size == 0 ){
                 return this.totalCombinations(total)
               }
@@ -412,7 +412,7 @@
           filterTotalCombos: function(size,total,included,excluded){
             let a = []
             if ( total == 0 && size == 0 ) {
-              a = this.allCombinations()
+              a = this.allCombinations
             } else {
               if ( total == 0 ){
                 a = this.combosForSize(size)
@@ -446,7 +446,6 @@
               return a.sort(this.sortTotalCombos);
             }
             return a.sort(this.sortSizeCombos)
-
           },
           includedInIncludedString: function(s,included) {
             for ( let x=0;x < included.length; x++){
@@ -455,29 +454,6 @@
               }
             }
             return false;
-          },
-          allCombinations: function(included,excluded) {
-            let a = combinations([1,2,3,4,5,6,7,8,9]).map(e => e.join(''))
-            a = a.filter( function(e){
-              includedFlag = true
-              for (let x=0; x < included.length; x++ ) {
-                if ( e.indexOf(included[x]) > -1 ) {
-                  includedFlag = (includedFlag && true)
-                } else {
-                  includedFlag = false
-                }
-              }
-              let excludedFlag = true
-              for (let x=0; x < excluded.length; x++ ) {
-                if ( e.indexOf(excluded[x]) > -1 ) {
-                  excludedFlag = false
-                } else {
-                  excludedFlag = excludedFlag && true
-                }
-              }
-              return includedFlag && excludedFlag && e.length > 0
-            })
-            return a.sort(this.sortSizeCombos)
           },
           combosForSize: function(size){
             return k_combinations([1,2,3,4,5,6,7,8,9],size).map(function(e){return e.join('')}).sort(this.sortSizeCombos)
@@ -538,6 +514,7 @@
           count: 0,
           sumHelpers: [],
           console: window.console,
+          allCombinations: combinations([1,2,3,4,5,6,7,8,9]).map(e => e.join('')),
           combos: {
             "0": {},
             "2": {
