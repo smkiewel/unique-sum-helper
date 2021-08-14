@@ -84,7 +84,7 @@
   <body>
     <div id="app" class="container-fluid">
       <h1>Unique Sum Helpers</h1>
-      <div class="row">
+      <div class="row me-0 ms-0 ps-0 pe-0">
         <sum-helper-form></sum-helper-form>
       </div>
       <div class="row">
@@ -149,9 +149,9 @@
           }
         },
         template: `
-          <div id="sum-form" class="row mr-0 pr-0">
-            <div class="form-group row col-12 col-md-6">
-              <div class="form-group row mr-0">
+          <div id="sum-form" class="row me-0 ms-0 ps-0 pe-0">
+            <div class="form-group row col-12 col-md-6 me-0 ms-0 ps-0 pe-0">
+              <div class="form-group row me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="size" class="col-form-label">Size</label></div>
                 <div class="col-9">
                   <select v-model="size" class="form-control" id="size">
@@ -166,32 +166,33 @@
                   </select>
                 </div>
               </div>
-              <div class="row form-group mr-0">
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="total" class="col-form-label">Total</label></div>
                 <div class="col-9">
                   <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
                 </div>
               </div>
-              <div class="row form-group mr-0">
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="included" class="col-form-label">Included</label></div>
                 <div class="col-9">
                   <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
                 </div>
               </div>
-              <div class="row form-group mr-0">
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
                 <div class="col-9">
                   <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
                 </div>
               </div>
-            </div>
-            <div class="col-12 col-lg-6">You may enter 0 (meaning undefined value) for either size or total or both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness.</div>
-            <div class="row mr-0">
-              <div class="col-lg-6">
-                <div class="row justify-content-center">
-                  <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-12 col-lg-3" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
+              <div class="row me-0 ms-0 ps-0 pe-0">
+                <div class="col-lg-9 offset-lg-3">
+                  <div class="row me-0 ms-0">
+                    <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-12" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
+                  </div>
                 </div>
               </div>
+            </div>
+            <div class="col-12 col-lg-6">You may enter 0 (meaning undefined value) for either size or total or both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness.</div>
             </div>
           </div>
 
