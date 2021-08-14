@@ -261,7 +261,7 @@
             for (let x=1;x < 10; x++){
               let found = false
               for (let y=0;y < this.activeCombos.length;y++){
-                if ( this.activeCombos[y].indexOf(x) > -1 ){
+               if ( String(this.activeCombos[y]).indexOf(x) > -1 ){
                   found = true
                 }
               }
@@ -395,10 +395,7 @@
             return sum;
           },
           getCombos: function(size,total,included,excluded) {
-           // if (included == '' && excluded == '' && size == 0 && total == 0){
-             // return []
-           // }
-            if (size == 0 && total == 0 ){
+            if ((size == '' || size == 0) && (total == 0 || total == '') ){
               return this.allCombinations(included,excluded)
             }
             if ( included == "" && excluded == '' ){
@@ -410,7 +407,6 @@
               }
               return this.combos[size][total]
             }
-
             return this.filterTotalCombos(size,total,included,excluded)
           },
           filterTotalCombos: function(size,total,included,excluded){
@@ -424,7 +420,7 @@
                 a = this.totalCombinations(total)
               }
             }
-            return a.filter(e => {
+            a = a.filter(e => {
               if ( size > 0 && e.length != size ){
                 return false
               }
@@ -446,7 +442,11 @@
               }
               return includedFlag && excludedFlag
             })
-            return a;
+            if (total != 0){
+              return a.sort(this.sortTotalCombos);
+            }
+            return a.sort(this.sortSizeCombos)
+
           },
           includedInIncludedString: function(s,included) {
             for ( let x=0;x < included.length; x++){
@@ -459,9 +459,8 @@
           allCombinations: function(included,excluded) {
             let array = [1,2,3,4,5,6,7,8,9]
             let a =  new Array(1 << array.length).fill().map(
-             (e1, i) => array.filter((e2, j) => i & 1 << j)).map(e => e.join(''));
-
-            return a.filter( function(e){
+              (e1, i) => array.filter((e2, j) => i & 1 << j)).map(e => e.join(''));
+            a = a.filter( function(e){
               includedFlag = true
               for (let x=0; x < included.length; x++ ) {
                 if ( e.indexOf(included[x]) > -1 ) {
@@ -479,7 +478,8 @@
                 }
               }
               return includedFlag && excludedFlag && e.length > 0
-            }).sort(this.sortSizeCombos)
+            })
+            return a.sort(this.sortSizeCombos)
           },
           combosForSize: function(size){
             return k_combinations([1,2,3,4,5,6,7,8,9],size).map(function(e){return e.join('')}).sort(this.sortSizeCombos)
@@ -517,18 +517,29 @@
             if ( a.length < b.length ){
               return -1
             }
-            return a < b
+            if ( parseInt(a) < parseInt(b) ){
+              return -1
+            } else {
+              return 1
+            }
           },
           sortSizeCombos: function(a,b){
-            if ( this.sumOfDigits(a) < this.sumOfDigits(b) ) {
+            let aSum = this.sumOfDigits(a)
+            let bSum = this.sumOfDigits(b)
+            if ( aSum < bSum ) {
               return -1
+            } else if ( aSum == bSum) {
+              if ( a < b ){
+                return -1
+              }
             }
-            return a < b
+            return 1
           }
         },
         data: {
           count: 0,
           sumHelpers: [],
+          console: window.console,
           combos: {
             "0": {},
             "2": {
