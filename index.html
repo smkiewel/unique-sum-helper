@@ -148,44 +148,48 @@
           }
         },
         template: `
-          <div id="sum-form" class="">
-            <div class="row form-group">
-              <div class="col-3 col-lg-1"><label for="size" class="col-form-label">Size</label></div>
-              <div class="col-9 col-lg-2">
-                <select v-model="size" class="form-control" id="size">
-                  <option>0</option>
-                  <option>2</option>
-                  <option>3</option>
-                  <option>4</option>
-                  <option>5</option>
-                  <option>6</option>
-                  <option>7</option>
-                  <option>8</option>
-                </select>
+          <div id="sum-form" class="row">
+            <div class="form-group row col-12 col-md-6">
+              <div class="form-group row">
+                <div class="col-3"><label for="size" class="col-form-label">Size</label></div>
+                <div class="col-9">
+                  <select v-model="size" class="form-control" id="size">
+                    <option>0</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3"><label for="total" class="col-form-label">Total</label></div>
+                <div class="col-9">
+                  <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3"><label for="included" class="col-form-label">Included</label></div>
+                <div class="col-9">
+                  <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
+                <div class="col-9">
+                  <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
+                </div>
               </div>
             </div>
-            <div class="row form-group">
-              <div class="col-lg-1 col-3"><label for="total" class="col-form-label">Total</label></div>
-              <div class="col-9 col-lg-2">
-                <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
-              </div>
-            </div>
-            <div class="row form-group">
-              <div class="col-lg-1 col-3"><label for="included" class="col-form-label">Included</label></div>
-              <div class="col-9 col-lg-2">
-                <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
-              </div>
-            </div>
-            <div class="row form-group">
-              <div class="col-lg-1 col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
-              <div class="col-9 col-lg-2">
-                <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
-              </div>
-            </div>
+            <div class="col-12 col-lg-6">You may enter 0 for both size and total, including for both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness.</div>
             <div class="row">
-              <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-lg-3 col-12" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
+              <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-lg-3 col-12  offset-md-2" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
             </div>
           </div>
+
         `
       })
 
