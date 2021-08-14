@@ -150,8 +150,8 @@
         template: `
           <div id="sum-form" class="">
             <div class="row form-group">
-              <div class="col-md-1"><label for="size" class="col-form-label">Size</label></div>
-              <div class="col-md-1">
+              <div class="col-3 col-md-1"><label for="size" class="col-form-label">Size</label></div>
+              <div class="col-9 col-md-2">
                 <select v-model="size" class="form-control" id="size">
                   <option>0</option>
                   <option>2</option>
@@ -163,19 +163,23 @@
                   <option>8</option>
                 </select>
               </div>
-              <div class="col-sm-1"><label for="included" class="col-form-label">Included</label></div>
-              <div class="col-sm-8">
-                <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Enter included digits. Format is forgiving: all non-numeric are dropped, and uniqueness is imposed.">
+            </div>
+            <div class="row form-group">
+              <div class="col-md-1 col-3"><label for="total" class="col-form-label">Total</label></div>
+              <div class="col-9 col-md-2">
+                <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
               </div>
             </div>
             <div class="row form-group">
-              <div class="col-1"><label for="total" class="col-form-label">Total</label></div>
-              <div class="col-1">
-                <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
+              <div class="col-md-1 col-3"><label for="included" class="col-form-label">Included</label></div>
+              <div class="col-9 col-md-2">
+                <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
               </div>
-              <div class="col-1"><label for="excluded" class="col-form-label">Excluded</label></div>
-              <div class="col-8">
-                <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Enter excluded digits. Format is forgiving: all non-numeric are dropped, and uniqueness is imposed.">
+            </div>
+            <div class="row form-group">
+              <div class="col-md-1 col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
+              <div class="col-9 col-md-2">
+                <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
               </div>
             </div>
             <div class="row">
