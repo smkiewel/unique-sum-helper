@@ -259,12 +259,7 @@
           missing: function() {
             let missing = []
             for (let x=1;x < 10; x++){
-              let found = false
-              for (let y=0;y < this.activeCombos.length;y++){
-               if ( String(this.activeCombos[y]).indexOf(x) > -1 ){
-                  found = true
-                }
-              }
+              const found = this.activeCombos.some(combo => String(combo).includes(x));
               if ( !found ){
                 missing.push(x)
               }
