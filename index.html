@@ -16,7 +16,6 @@
         margin-bottom: .75em;
         margin-right: .75em;
         padding: 0;
-        width: 13.5rem;
         height: max-content;
         background-color: lightgrey;
       }
@@ -185,7 +184,7 @@
             </div>
             <div class="row">
               <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-md-3 col-12" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
-            </div>-12
+            </div>
           </div>
         `
       })
@@ -336,7 +335,7 @@
           }
         },
         template: `
-          <div class="sum-helper" :id="helper.id">
+          <div class="sum-helper col-12 col-md-3" :id="helper.id">
             <i v-on:click="removeHelper" class="bi bi-x-square remove-helper"></i>
             <div class="sum-helper-wrapper">
               <div v-bind:style="this.showSize()"">Size: {{helper.size}}</div>
