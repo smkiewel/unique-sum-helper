@@ -160,16 +160,7 @@
               <div class="form-group row me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="size" class="col-form-label">Size</label></div>
                 <div class="col-9">
-                  <select v-model="size" class="form-control" id="size" v-on:change="updateHelper">
-                    <option>0</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                  </select>
+                  <input v-model="size" class="form-control" id="size" v-on:input="updateHelper" type="number">
                 </div>
               </div>
               <div class="row form-group me-0 ms-0 ps-0 pe-0">
