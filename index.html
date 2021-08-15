@@ -128,8 +128,6 @@
             this.total = this.cleanZeros(this.total)
             this.cleanIncludedExcluded()
             if ( this.invalidOptions() ){
-              this.toggleTooltip();
-              setTimeout(this.toggleTooltip, 3000)
               return
             }
             this.$parent.updateHelper(this.size,this.total,this.included,this.excluded)
