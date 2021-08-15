@@ -127,9 +127,6 @@
             this.size = this.cleanZeros(this.size)
             this.total = this.cleanZeros(this.total)
             this.cleanIncludedExcluded()
-            if ( this.invalidOptions() ){
-              return
-            }
             this.$parent.updateHelper(this.size,this.total,this.included,this.excluded)
           },
           resetTotal: function(){
@@ -447,7 +444,7 @@
               if ( total == 0 ){
                 return this.combosForSize(size)
               }
-              return this.combos[size][total]
+              return this.combos[size][total] || []
             }
             return this.filterTotalCombos(size,total,included,excluded)
           },
