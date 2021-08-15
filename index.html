@@ -78,7 +78,7 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="lib/combinations.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
   <body>
@@ -123,6 +123,17 @@
             }
             this.$parent.addHelper(this.size,this.total,this.included,this.excluded)
           },
+          updateHelper: function(){
+            this.size = this.cleanZeros(this.size)
+            this.total = this.cleanZeros(this.total)
+            this.cleanIncludedExcluded()
+            if ( this.invalidOptions() ){
+              this.toggleTooltip();
+              setTimeout(this.toggleTooltip, 3000)
+              return
+            }
+            this.$parent.updateHelper(this.size,this.total,this.included,this.excluded)
+          },
           resetTotal: function(){
             this.total = "0"
           },
@@ -154,7 +165,7 @@
               <div class="form-group row me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="size" class="col-form-label">Size</label></div>
                 <div class="col-9">
-                  <select v-model="size" class="form-control" id="size">
+                  <select v-model="size" class="form-control" id="size" v-on:change="updateHelper">
                     <option>0</option>
                     <option>2</option>
                     <option>3</option>
@@ -169,19 +180,19 @@
               <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="total" class="col-form-label">Total</label></div>
                 <div class="col-9">
-                  <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" />
+                  <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" v-on:input="updateHelper"/>
                 </div>
               </div>
               <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="included" class="col-form-label">Included</label></div>
                 <div class="col-9">
-                  <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
+                  <input type="text" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format" v-on:input="updateHelper">
                 </div>
               </div>
               <div class="row form-group me-0 ms-0 ps-0 pe-0">
                 <div class="col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
                 <div class="col-9">
-                  <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format">
+                  <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format" v-on:input="updateHelper">
                 </div>
               </div>
               <div class="row me-0 ms-0 ps-0 pe-0 mb-0 pb-0">
@@ -235,7 +246,8 @@
         data: function() {
           return {
             hideMissingField: true,
-            hideRequiredField: true
+            hideRequiredField: true,
+            componentKey: 0
           }
         },
         computed: {
@@ -342,10 +354,13 @@
           },
           toggleRequired: function(){
             this.hideRequiredField = !this.hideRequiredField
+          },
+          forceRerender() {
+            this.componentKey += 1;
           }
         },
         template: `
-          <div class="sum-helper col-12 col-md-4 col-lg-3" :id="helper.id">
+          <div class="sum-helper col-12 col-md-4 col-lg-3" :id="helper.id" :key="componentKey">
             <i v-on:click="removeHelper" class="bi bi-x-square remove-helper"></i>
             <div class="sum-helper-wrapper">
               <div v-bind:style="this.showSize()"">Size: {{helper.size}}</div>
@@ -390,6 +405,28 @@
               combos: [...this.getCombos(size,total,included,excluded)],
               activeCombos: [...this.getCombos(size,total,included,excluded)]
             })
+          },
+          updateHelper: function(size,total,included,excluded){
+
+            if ( this.sumHelpers.length == 0 ){
+              this.addHelper(size,total,included,excluded)
+              return
+            }
+
+            let helper = this.sumHelpers[this.sumHelpers.length -1]
+            let componentHelper = this.$children[this.$children.length -1].helper
+            helper.size = size
+            componentHelper.size = size
+            helper.total = total
+            componentHelper.total = total
+            helper.included = included.split('')
+            componentHelper.included = included.split('')
+            helper.excluded = excluded.split('')
+            componentHelper.excluded = excluded.split('')
+            helper.combos = [...this.getCombos(size,total,included,excluded)]
+            componentHelper.combos = [...this.getCombos(size,total,included,excluded)]
+            helper.activeCombos = [...this.getCombos(size,total,included,excluded)]
+            componentHelper.activeCombos = [...this.getCombos(size,total,included,excluded)]
           },
           removeHelper: function(id) {
             this.sumHelpers.splice(this.sumHelpers.findIndex(helper => helper.id == id),1)
