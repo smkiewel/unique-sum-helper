@@ -68,7 +68,7 @@
         background-color: #666;
       }
       .hidden-field {
-        width: 6rem;
+        width: 7rem;
         display: inline-block;
       }
       .hidden-field-label {
@@ -234,24 +234,26 @@
         props: ['helper'],
         data: function() {
           return {
-            activeCombos: [...this.helper.combos],
             hideMissingField: true,
             hideRequiredField: true
           }
         },
         computed: {
-          possibilities: function() { return this.activeCombos.length },
+          possibilities: function() { return this.helper.activeCombos.length },
           required: function() {
+            if ( this.helper.activeCombos.length == 0 ){
+              return []
+            }
             let r = []
-            var longest = this.activeCombos.reduce(
+            var longest = this.helper.activeCombos.reduce(
                 function (a, b) {
                     return a.length > b.length ? a : b;
                 }
             );
             for (let x=0; x < longest.length; x++){
               let notFound = false
-              for (let y=0; y < this.activeCombos.length; y++){
-                if ( this.activeCombos[y].indexOf(longest[x]) < 0 ){
+              for (let y=0; y < this.helper.activeCombos.length; y++){
+                if ( this.helper.activeCombos[y].indexOf(longest[x]) < 0 ){
                   notFound = true
                   break
                 }
@@ -263,9 +265,12 @@
             return r
           },
           missing: function() {
+            if (this.helper.activeCombos.length == 0){
+              return [1,2,3,4,5,6,7,8,9]
+            }
             let missing = []
             for (let x=1;x < 10; x++){
-              const found = this.activeCombos.some(combo => String(combo).includes(x));
+              const found = this.helper.activeCombos.some(combo => String(combo).includes(x));
               if ( !found ){
                 missing.push(x)
               }
@@ -291,11 +296,11 @@
           },
           toggleCombo: function(combo){
             combo = "" + combo
-            let index = this.activeCombos.indexOf(combo)
+            let index = this.helper.activeCombos.indexOf(combo)
             if ( index > -1 ){
-              this.activeCombos.splice(index,1)
+              this.helper.activeCombos.splice(index,1)
             } else {
-              this.activeCombos.push(combo)
+              this.helper.activeCombos.push(combo)
             }
           },
           showSize: function(){
@@ -382,7 +387,8 @@
               included: included.split(''),
               excluded: excluded.split(''),
               notes: '',
-              combos: this.getCombos(size,total,included,excluded)
+              combos: [...this.getCombos(size,total,included,excluded)],
+              activeCombos: [...this.getCombos(size,total,included,excluded)]
             })
           },
           removeHelper: function(id) {
