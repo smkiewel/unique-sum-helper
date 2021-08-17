@@ -398,17 +398,17 @@
           <div class="sum-helper col-12 col-sm2-6 col-lg-5 col-xl-3" :id="helper.id">
             <i v-on:click="removeHelper" class="bi bi-x-square remove-helper"></i>
             <div class="sum-helper-wrapper">
-              <div><label class="helper-label" :for="size_id">Size:</label> <input type="number" :id="size_id" v-model="size" v-on:input="updateHelper"/></div>
-              <div><label class="helper-label" :for="total_id">Total:</label> <input type="number" :id="total_id" v-model="total" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="size_id">Size:</label> <input type="number" :id="size_id" v-model="size" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
+              <div><label class="helper-label" :for="total_id">Total:</label> <input type="number" :id="total_id" v-model="total" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
               <div><label class="helper-label" :for="included_id">Included:</label> <input type="text" :id="included_id" v-model="included" v-on:click="(e) => e.target.select()" v-on:input="updateHelper"></div>
-              <div><label class="helper-label" :for="excluded_id">Excluded:</label> <input type="text" :id="excluded_id" v-model="excluded" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="excluded_id">Excluded:</label> <input type="text" :id="excluded_id" v-model="excluded" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
-              <div><label class="helper-label" :for="min_size_id">Min Size:</label> <input type="number" :id="min_size_id" v-model="minSize" v-on:input="updateHelper"/></div>
-              <div><label class="helper-label" :for="max_size_id">Max Size:</label> <input type="number" :id="max_size_id" v-model="maxSize" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="min_size_id">Min Size:</label> <input type="number" :id="min_size_id" v-model="minSize" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
+              <div><label class="helper-label" :for="max_size_id">Max Size:</label> <input type="number" :id="max_size_id" v-model="maxSize" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
-              <div><label class="helper-label" :for="min_total_id">Min Total:</label> <input type="number" :id="min_total_id" v-model="minTotal" v-on:input="updateHelper"/></div>
-              <div><label class="helper-label" :for="max_total_id">Max Total:</label> <input type="number" :id="max_total_id" v-model="maxTotal" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="min_total_id">Min Total:</label> <input type="number" :id="min_total_id" v-model="minTotal" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
+              <div><label class="helper-label" :for="max_total_id">Max Total:</label> <input type="number" :id="max_total_id" v-model="maxTotal" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
               <div v-bind:style="this.showMissing()">
                 <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing.join(',')}}</span>
