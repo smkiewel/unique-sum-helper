@@ -82,10 +82,13 @@
         padding-left: 5px;
         width: 12rem;
       }
+      hr {
+        margin: .3rem;
+      }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="lib/combinations.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
   <body>
@@ -159,6 +162,10 @@
             notes: '',
             included: '',
             excluded: '',
+            minSize: 0,
+            maxSize: 0,
+            minTotal: 0,
+            maxTotal: 0,
             combos: [],
             activeCombos: []
           }
@@ -339,26 +346,42 @@
           excluded_id: function(){
             return 'excluded-' + this.helper.id
           },
+          min_size_id: function(){
+            return 'min-size-' + this.helper.id
+          },
+          max_size_id: function(){
+            return 'max-size-' + this.helper.id
+          },
+          min_total_id: function(){
+            return 'min-total-' + this.helper.id
+          },
+          max_total_id: function(){
+            return 'max-total-' + this.helper.id
+          },
           updateHelper: function(){
             this.cleanInput();
             this.cleanIncludedExcluded();
-            this.combos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded)]
-            this.activeCombos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded)]
+            this.combos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded,this.minSize,this.maxSize,this.minTotal,this.maxTotal)]
+            this.activeCombos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded,this.minSize,this.maxSize,this.minTotal,this.maxTotal)]
           },
           cleanInput: function() {
             this.size = this.cleanZeros(this.size)
             this.total = this.cleanZeros(this.total)
+            this.minSize = this.cleanZeros(this.minSize)
+            this.minTotal = this.cleanZeros(this.minTotal)
+            this.maxSize = this.cleanZeros(this.maxSize)
+            this.maxTotal = this.cleanZeros(this.maxTotal)
           },
           cleanZeros: function(s) {
-            if ( s == undefined )
-              return ''
+            if ( s == undefined || s == '')
+              return '0'
             if ( s.length == 0 || s.length == 1)
               return s
             while ( s[0] == 0 ){
               s = s.slice(1)
             }
             if ( s == undefined )
-              s = ''
+              s = '0'
             return s
           },
           cleanIncludedExcluded: function() {
@@ -377,8 +400,16 @@
             <div class="sum-helper-wrapper">
               <div><label class="helper-label" :for="size_id">Size:</label> <input type="number" :id="size_id" v-model="size" v-on:input="updateHelper"/></div>
               <div><label class="helper-label" :for="total_id">Total:</label> <input type="number" :id="total_id" v-model="total" v-on:input="updateHelper"/></div>
+              <hr/>
               <div><label class="helper-label" :for="included_id">Included:</label> <input type="text" :id="included_id" v-model="included" v-on:click="(e) => e.target.select()" v-on:input="updateHelper"></div>
               <div><label class="helper-label" :for="excluded_id">Excluded:</label> <input type="text" :id="excluded_id" v-model="excluded" v-on:input="updateHelper"/></div>
+              <hr/>
+              <div><label class="helper-label" :for="min_size_id">Min Size:</label> <input type="number" :id="min_size_id" v-model="minSize" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="max_size_id">Max Size:</label> <input type="number" :id="max_size_id" v-model="maxSize" v-on:input="updateHelper"/></div>
+              <hr/>
+              <div><label class="helper-label" :for="min_total_id">Min Total:</label> <input type="number" :id="min_total_id" v-model="minTotal" v-on:input="updateHelper"/></div>
+              <div><label class="helper-label" :for="max_total_id">Max Total:</label> <input type="number" :id="max_total_id" v-model="maxTotal" v-on:input="updateHelper"/></div>
+              <hr/>
               <div v-bind:style="this.showMissing()">
                 <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing.join(',')}}</span>
                 <i v-on:click="toggleMissing" class="bi" v-bind:class="missingEye"></i>
@@ -429,24 +460,25 @@
             }
             return sum;
           },
-          getCombos: function(size,total,included,excluded) {
-            if ( included == "" && excluded == '' ){
-              if ( size == 0 && total == 0 ){
-                return this.allCombinations
-              }
-              if ( size == 0 ){
-                return this.totalCombinations(total)
-              }
-              if ( total == 0 ){
-                return this.combosForSize(size)
-              }
-              return this.combos[String(size)][String(total)] || []
+          getCombos: function(size,total,included,excluded,rawMinSize,rawMaxSize,rawMinTotal,rawMaxTotal){
+            let minSize = parseInt(rawMinSize)
+            let maxSize = parseInt(rawMaxSize)
+            let minTotal = parseInt(rawMinTotal)
+            let maxTotal = parseInt(rawMaxTotal)
+            if (excluded == '123456789'){
+              return []
             }
-            return this.filterTotalCombos(size,total,included,excluded)
-          },
-          filterTotalCombos: function(size,total,included,excluded){
+            if ( (minSize != 0 && maxSize != 0 ) && (minSize > maxSize)){
+              return []
+            }
+            if ( (minTotal != 0 && maxTotal != 0 ) && (minTotal > maxTotal)){
+              return []
+            }
+
             let a = []
-            if ( total == 0 && size == 0 ) {
+            if ( included == '123456789'){
+              a = [1,2,3,4,5,6,7,8,9]
+            } else if ( total == 0 && size == 0 ) {
               a = this.allCombinations
             } else if ( total == 0 ){
                 a = this.combosForSize(size)
@@ -455,9 +487,21 @@
             } else {
               a = this.combos[String(size)][String(total)] || []
             }
+
             a = a.filter(e => {
-              if ( size > 0 && e.length != size ){
-                return false
+              let sizeFlag = true
+              if ( minSize != 0 && minSize > parseInt(e.length) ){
+                sizeFlag = false
+              }
+              if ( maxSize != 0 && maxSize < parseInt(e.length) ){
+                sizeFlag = false
+              }
+              let totalFlag = true
+              if ( minTotal != 0 && minTotal > this.sumOfDigits(e) ){
+                totalFlag = false
+              }
+              if ( maxTotal != 0 && maxTotal < this.sumOfDigits(e) ){
+                totalFlag = false
               }
               let includedFlag = true
               for (let x=0; x < included.length; x++ ) {
@@ -475,7 +519,7 @@
                   excludedFlag = excludedFlag && true
                 }
               }
-              return includedFlag && excludedFlag
+              return sizeFlag && totalFlag && includedFlag && excludedFlag
             })
             if (total != 0){
               return a.sort(this.sortTotalCombos);
