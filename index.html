@@ -68,25 +68,31 @@
         background-color: #666;
       }
       .hidden-field {
-        width: 12.8rem;
+        width: 13.1rem;
         display: inline-block;
         margin-left:  4px;
       }
       .hidden-field-label, .helper-label {
-        width: 5rem;
+        width: 5.5rem;
         display: inline-block;
+      }
+      .button-div {
+        margin-top:  .5rem;
+      }
+      input {
+        padding-left: 5px;
       }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="../lib/combinations.js"></script>
+    <script src="lib/combinations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
   <body>
     <div id="app" class="container-fluid">
-      <h1>Unique Sum Helpers</h1>
-      <div class="row me-0 ms-0 ps-0 pe-0">
-
+      <div class="row">
+        <div class="col-12 col-md-auto"><h1>Unique Sum Helpers</h1></div>
+        <div class="col-12 col-md-6 button-div"><add-helper-button></add-helper-button></div>
       </div>
       <div class="row">
         <sum-helper
@@ -98,6 +104,17 @@
     </div>
     <div id="data-bucket" data-combos=""></div>
     <script>
+      Vue.component('add-helper-button',{
+        methods: {
+          addHelper: function() {
+            this.$parent.addHelper()
+          }
+        },
+        template: `
+          <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary col-12 col-lg-4">Add Helper</button>
+        `
+      })
+
       Vue.component('combo-row', {
         props: ['combo','total'],
         data: function() {
@@ -135,6 +152,8 @@
           return {
             hideMissingField: true,
             hideRequiredField: true,
+            hideLengthField: true,
+            hideSumField: true,
             size: 0,
             total: 0,
             notes: '',
@@ -183,6 +202,37 @@
             }
             return missing
           },
+          minMaxLength: function() {
+            if (this.activeCombos.length == 0){
+              return {"min":0,"max":0}
+            }
+            let min = max = this.activeCombos[0].length
+            for (var x=1; x < this.activeCombos.length; x++){
+              if ( this.activeCombos[x].length < min ){
+                min = this.activeCombos[x].length
+              }
+              if ( this.activeCombos[x].length > max ){
+                max = this.activeCombos[x].length
+              }
+            }
+            return {"min": min, "max": max}
+          },
+          minMaxSum: function() {
+            if (this.activeCombos.length == 0){
+              return {"min":0,"max":0}
+            }
+            let min = max = this.$parent.sumOfDigits(this.activeCombos[0])
+            for (var x=1; x < this.activeCombos.length; x++){
+              let sum = this.$parent.sumOfDigits(this.activeCombos[x])
+              if ( sum < min ){
+                min = sum
+              }
+              if ( sum > max ){
+                max = sum
+              }
+            }
+            return {"min": min, "max": max}
+          },
           missingEye: function(){
             return {
               "bi-eye": this.hideMissingField,
@@ -193,6 +243,18 @@
             return {
               "bi-eye": this.hideRequiredField,
               "bi-eye-slash": !this.hideRequiredField
+            }
+          },
+          lengthEye: function(){
+            return {
+              "bi-eye": this.hideLengthField,
+              "bi-eye-slash": !this.hideLengthField
+            }
+          },
+          sumEye: function(){
+            return {
+              "bi-eye": this.hideSumField,
+              "bi-eye-slash": !this.hideSumField
             }
           }
         },
@@ -248,6 +310,22 @@
           },
           toggleRequired: function(){
             this.hideRequiredField = !this.hideRequiredField
+          },
+          showLength: function() {
+            if (this.size == 0)
+              return {display: 'block'}
+            return {display: 'none'}
+          },
+          toggleLength: function(){
+            this.hideLengthField = !this.hideLengthField
+          },
+          showSumInfo: function() {
+            if (this.total == 0)
+              return {display: 'block'}
+            return {display: 'none'}
+          },
+          toggleSumInfo: function(){
+            this.hideSumField = !this.hideSumField
           },
           size_id: function(){
             return 'size-' + this.helper.id
@@ -308,6 +386,14 @@
               <div v-bind:style="this.showRequired()">
                 <span class="hidden-field-label">Required:</span> <span v-bind:class="{hidden: hideRequiredField}" class="hidden-field">{{required.join(',')}}</span>
                 <i v-on:click="toggleRequired" class="bi" v-bind:class="requiredEye"></i>
+              </div>
+              <div v-bind:style="this.showSumInfo()">
+                <span class="hidden-field-label">Sum info:</span> <span v-bind:class="{hidden: hideSumField}" class="hidden-field">Min: {{minMaxSum.min}}; Max: {{minMaxSum.max}}</span>
+                <i v-on:click="toggleSumInfo" class="bi" v-bind:class="sumEye"></i>
+              </div>
+              <div v-bind:style="this.showLength()">
+                <span class="hidden-field-label">Length info:</span> <span v-bind:class="{hidden: hideLengthField}" class="hidden-field">Min: {{minMaxLength.min}}; Max: {{minMaxLength.max}}</span>
+                <i v-on:click="toggleLength" class="bi" v-bind:class="lengthEye"></i>
               </div>
               <div>Possibilities: {{possibilities}}</div>
             </div>
