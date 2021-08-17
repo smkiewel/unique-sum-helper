@@ -68,17 +68,16 @@
         background-color: #666;
       }
       .hidden-field {
-        width: 12.8rem;
+        width: 7rem;
         display: inline-block;
-        margin-left:  4px;
       }
-      .hidden-field-label, .helper-label {
+      .hidden-field-label {
         width: 5rem;
         display: inline-block;
       }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="../lib/combinations.js"></script>
+    <script src="lib/combinations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
@@ -86,7 +85,7 @@
     <div id="app" class="container-fluid">
       <h1>Unique Sum Helpers</h1>
       <div class="row me-0 ms-0 ps-0 pe-0">
-
+        <sum-helper-form></sum-helper-form>
       </div>
       <div class="row">
         <sum-helper
@@ -98,8 +97,107 @@
     </div>
     <div id="data-bucket" data-combos=""></div>
     <script>
+     Vue.component('sum-helper-form', {
+        data: function() {
+          return {
+            size: "0",
+            total: "0",
+            included: "",
+            excluded: ''
+          }
+        },
+        computed: {
+          isButtonDisabled: function(){
+            return ( this.size == 0 && this.total == 0 )
+          }
+        },
+        methods: {
+          addHelper: function(){
+            this.size = this.cleanZeros(this.size)
+            this.total = this.cleanZeros(this.total)
+            this.cleanIncludedExcluded()
+            if ( this.invalidOptions() ){
+              this.toggleTooltip();
+              setTimeout(this.toggleTooltip, 3000)
+              return
+            }
+            this.$parent.addHelper(this.size,this.total,this.included,this.excluded)
+          },
+          updateHelper: function(){
+            this.size = this.cleanZeros(this.size)
+            this.total = this.cleanZeros(this.total)
+            this.cleanIncludedExcluded()
+            this.$parent.updateHelper(this.size,this.total,this.included,this.excluded)
+          },
+          resetTotal: function(){
+            this.total = "0"
+          },
+          toggleTooltip: function(){
+            $('#add-helper-button').tooltip('toggle')
+          },
+          cleanZeros: function(s) {
+            while ( s[0] == 0 ){
+              s = s.slice(1)
+            }
+            return s
+          },
+          cleanIncludedExcluded: function() {
+            let digits = this.included.split("")
+            this.included = digits.filter((digit) => digit.match(/[1-9]/)).join("")
+            this.included = this.included.split('').filter((v, i, a) => a.indexOf(v) === i).sort().join('')
+            digits = this.excluded.split('')
+            this.excluded = digits.filter((digits) => digits.match(/[1-9]/)).join('')
+            this.excluded = this.excluded.split('').filter((v, i, a) => a.indexOf(v) === i).sort().join('')
+          },
+          invalidOptions: function(){
+            let combos = this.$parent.getCombos(this.size,this.total,this.included,this.excluded)
+            return combos == undefined || combos.length < 1
+          }
+        },
+        template: `
+          <div id="sum-form" class="row me-0 ms-0 ps-0 pe-0">
+            <div class="form-group row col-12 col-md-6 me-0 ms-0 ps-0 pe-0 mb-0">
+              <div class="form-group row me-0 ms-0 ps-0 pe-0">
+                <div class="col-3"><label for="size" class="col-form-label">Size</label></div>
+                <div class="col-9">
+                  <input v-model="size" class="form-control" id="size" v-on:input="updateHelper" type="number">
+                </div>
+              </div>
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
+                <div class="col-3"><label for="total" class="col-form-label">Total</label></div>
+                <div class="col-9">
+                  <input v-model="total" id="total" class="form-control col-1" type="number" v-on:click="(e) => e.target.select()" v-on:input="updateHelper"/>
+                </div>
+              </div>
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
+                <div class="col-3"><label for="included" class="col-form-label">Included</label></div>
+                <div class="col-9">
+                  <input type="number" id="included" v-model="included" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format" v-on:input="updateHelper">
+                </div>
+              </div>
+              <div class="row form-group me-0 ms-0 ps-0 pe-0">
+                <div class="col-3"><label for="excluded" class="col-form-label">Excluded</label></div>
+                <div class="col-9">
+                  <input type="text" id="excluded" v-model="excluded" class="form-control" v-on:click="(e) => e.target.select()" placeholder="Any format" v-on:input="updateHelper">
+                </div>
+              </div>
+              <div class="row me-0 ms-0 ps-0 pe-0 mb-0 pb-0">
+                <div class="col-lg-9 offset-lg-3">
+                  <div class="row me-0 ms-0">
+                    <button id="add-helper-button" v-on:click="addHelper" class="btn btn-primary red-tooltip col-12" data-toggle="tooltip" data-placement="bottom" title="Illegal combination of options.">Add Helper</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">You may enter 0 (meaning undefined value) for either size or total or both. Included and excluded are very forgiving, as they drop all non-numeric characters and impose uniqueness.</div>
+            </div>
+          </div>
+
+        `
+      })
+
       Vue.component('combo-row', {
-        props: ['combo','total'],
+        props: ['combo','total','included'],
         data: function() {
           return { removed: false }
         },
@@ -135,31 +233,25 @@
           return {
             hideMissingField: true,
             hideRequiredField: true,
-            size: 0,
-            total: 0,
-            notes: '',
-            included: '',
-            excluded: '',
-            combos: [],
-            activeCombos: []
+            componentKey: 0
           }
         },
         computed: {
-          possibilities: function() { return this.activeCombos.length },
+          possibilities: function() { return this.helper.activeCombos.length },
           required: function() {
-            if ( this.activeCombos.length == 0 ){
+            if ( this.helper.activeCombos.length == 0 ){
               return []
             }
             let r = []
-            var longest = this.activeCombos.reduce(
+            var longest = this.helper.activeCombos.reduce(
                 function (a, b) {
                     return a.length > b.length ? a : b;
                 }
             );
             for (let x=0; x < longest.length; x++){
               let notFound = false
-              for (let y=0; y < this.activeCombos.length; y++){
-                if ( this.activeCombos[y].indexOf(longest[x]) < 0 ){
+              for (let y=0; y < this.helper.activeCombos.length; y++){
+                if ( this.helper.activeCombos[y].indexOf(longest[x]) < 0 ){
                   notFound = true
                   break
                 }
@@ -171,12 +263,12 @@
             return r
           },
           missing: function() {
-            if (this.activeCombos.length == 0){
+            if (this.helper.activeCombos.length == 0){
               return [1,2,3,4,5,6,7,8,9]
             }
             let missing = []
             for (let x=1;x < 10; x++){
-              const found = this.activeCombos.some(combo => String(combo).includes(x));
+              const found = this.helper.activeCombos.some(combo => String(combo).includes(x));
               if ( !found ){
                 missing.push(x)
               }
@@ -202,34 +294,34 @@
           },
           toggleCombo: function(combo){
             combo = "" + combo
-            let index = this.activeCombos.indexOf(combo)
+            let index = this.helper.activeCombos.indexOf(combo)
             if ( index > -1 ){
-              this.activeCombos.splice(index,1)
+              this.helper.activeCombos.splice(index,1)
             } else {
-              this.activeCombos.push(combo)
+              this.helper.activeCombos.push(combo)
             }
           },
           showSize: function(){
-            if (this.size != 0){
+            if (this.helper.size != 0){
               return {display: 'block'}
             } else {
               return { display: 'none'}
             }
           },
           showTotal: function(){
-            if (this.total != 0){
+            if (this.helper.total != 0){
               return {display: 'block'}
             } else {
               return { display: 'none'}
             }
           },
           showIncluded: function(){
-            if (this.included.length == 0)
+            if (this.helper.included.length == 0)
               return {display: 'none'}
             return {display: 'block'}
           },
           showExcluded: function() {
-            if (this.excluded.length == 0)
+            if (this.helper.excluded.length == 0)
               return {display: 'none'}
             return {display: 'block'}
           },
@@ -249,58 +341,18 @@
           toggleRequired: function(){
             this.hideRequiredField = !this.hideRequiredField
           },
-          size_id: function(){
-            return 'size-' + this.helper.id
-          },
-          total_id: function(){
-            return 'total-' + this.helper.id
-          },
-          included_id: function(){
-            return 'included-' + this.helper.id
-          },
-          excluded_id: function(){
-            return 'excluded-' + this.helper.id
-          },
-          updateHelper: function(){
-            this.cleanInput();
-            this.cleanIncludedExcluded();
-            this.combos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded)]
-            this.activeCombos = [...this.$parent.getCombos(this.size,this.total,this.included,this.excluded)]
-          },
-          cleanInput: function() {
-            this.size = this.cleanZeros(this.size)
-            this.total = this.cleanZeros(this.total)
-          },
-          cleanZeros: function(s) {
-            if ( s == undefined )
-              return ''
-            if ( s.length == 0 || s.length == 1)
-              return s
-            while ( s[0] == 0 ){
-              s = s.slice(1)
-            }
-            if ( s == undefined )
-              s = ''
-            return s
-          },
-          cleanIncludedExcluded: function() {
-            let digits = this.included.split("")
-            this.included = digits.filter((digit) => digit.match(/[1-9]/)).join("")
-            this.included = this.included.split('').filter((v, i, a) => a.indexOf(v) === i).sort().join('')
-            digits = this.excluded.split('')
-            this.excluded = digits.filter((digit) => digit.match(/[1-9]/)).join('')
-            this.excluded = this.excluded.split('').filter((v, i, a) => a.indexOf(v) === i).sort().join('')
-
+          forceRerender() {
+            this.componentKey += 1;
           }
         },
         template: `
-          <div class="sum-helper col-12 col-md-4 col-lg-3" :id="helper.id">
+          <div class="sum-helper col-12 col-md-4 col-lg-3" :id="helper.id" :key="componentKey">
             <i v-on:click="removeHelper" class="bi bi-x-square remove-helper"></i>
             <div class="sum-helper-wrapper">
-              <div><label class="helper-label" :for="size_id">Size:</label> <input type="number" :id="size_id" v-model="size" v-on:input="updateHelper"/></div>
-              <div><label class="helper-label" :for="total_id">Total:</label> <input type="number" :id="total_id" v-model="total" v-on:input="updateHelper"/></div>
-              <div><label class="helper-label" :for="included_id">Included:</label> <input type="text" :id="included_id" v-model="included" v-on:click="(e) => e.target.select()" v-on:input="updateHelper"></div>
-              <div><label class="helper-label" :for="excluded_id">Excluded:</label> <input type="text" :id="excluded_id" v-model="excluded" v-on:input="updateHelper"/></div>
+              <div v-bind:style="this.showSize()"">Size: {{helper.size}}</div>
+              <div v-bind:style="this.showTotal()">Total: {{helper.total}}</div>
+              <div v-bind:style="this.showIncluded()">Included: {{helper.included.join(',')}}</div>
+              <div v-bind:style="this.showExcluded()">Excluded: {{helper.excluded.join(',')}}</div>
               <div v-bind:style="this.showMissing()">
                 <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing.join(',')}}</span>
                 <i v-on:click="toggleMissing" class="bi" v-bind:class="missingEye"></i>
@@ -313,10 +365,10 @@
             </div>
             <table class="table table-striped">
               <tbody>
-                <combo-row v-for="combo in this.combos" v-bind:combo="combo" v-bind:total="total" v-bind:key="helper.id + '-' + combo"></combo-row>
+                <combo-row v-for="combo in this.helper.combos" v-bind:combo="combo" v-bind:total="helper.total" v-bind:key="helper.id + '-' + combo"></combo-row>
               </tbody>
             </table>
-            <textarea v-model="notes" class="form-control"></textarea>
+            <textarea v-model="helper.notes" class="form-control"></textarea>
             </div>
           </div>
         `
@@ -328,10 +380,39 @@
           getNextHelperId: function() {
             return 'helper-' + ++(this.count)
           },
-          addHelper: function(){
+          addHelper: function(size,total,included,excluded){
             this.sumHelpers.push({
-              id: this.getNextHelperId()
+              id: this.getNextHelperId(),
+              size: size,
+              total: total,
+              included: included.split(''),
+              excluded: excluded.split(''),
+              notes: '',
+              combos: [...this.getCombos(size,total,included,excluded)],
+              activeCombos: [...this.getCombos(size,total,included,excluded)]
             })
+          },
+          updateHelper: function(size,total,included,excluded){
+
+            if ( this.sumHelpers.length == 0 ){
+              this.addHelper(size,total,included,excluded)
+              return
+            }
+
+            let helper = this.sumHelpers[this.sumHelpers.length -1]
+            let componentHelper = this.$children[this.$children.length -1].helper
+            helper.size = size
+            componentHelper.size = size
+            helper.total = total
+            componentHelper.total = total
+            helper.included = included.split('')
+            componentHelper.included = included.split('')
+            helper.excluded = excluded.split('')
+            componentHelper.excluded = excluded.split('')
+            helper.combos = [...this.getCombos(size,total,included,excluded)]
+            componentHelper.combos = [...this.getCombos(size,total,included,excluded)]
+            helper.activeCombos = [...this.getCombos(size,total,included,excluded)]
+            componentHelper.activeCombos = [...this.getCombos(size,total,included,excluded)]
           },
           removeHelper: function(id) {
             this.sumHelpers.splice(this.sumHelpers.findIndex(helper => helper.id == id),1)
@@ -354,7 +435,7 @@
               if ( total == 0 ){
                 return this.combosForSize(size)
               }
-              return this.combos[String(size)][String(total)] || []
+              return this.combos[size][total] || []
             }
             return this.filterTotalCombos(size,total,included,excluded)
           },
@@ -362,12 +443,12 @@
             let a = []
             if ( total == 0 && size == 0 ) {
               a = this.allCombinations
-            } else if ( total == 0 ){
-                a = this.combosForSize(size)
-            } else if (size == 0 ){
-                a = this.totalCombinations(total)
             } else {
-              a = this.combos[String(size)][String(total)] || []
+              if ( total == 0 ){
+                a = this.combosForSize(size)
+              } else {
+                a = this.totalCombinations(total)
+              }
             }
             a = a.filter(e => {
               if ( size > 0 && e.length != size ){
@@ -405,7 +486,7 @@
             return false;
           },
           combosForSize: function(size){
-            return k_combinations([1,2,3,4,5,6,7,8,9],parseInt(size)).map(function(e){return e.join('')}).sort(this.sortSizeCombos)
+            return k_combinations([1,2,3,4,5,6,7,8,9],size).map(function(e){return e.join('')}).sort(this.sortSizeCombos)
           },
           unique_combinations_for_total: function(l, sum, K, local, A) {
             //based on code by _saurabh_jaiswal at https://www.geeksforgeeks.org/all-unique-combinations-whose-sum-equals-to-k/
@@ -460,8 +541,8 @@
           }
         },
         data: {
-          count: 1,
-          sumHelpers: [{id:'helper-1'}],
+          count: 0,
+          sumHelpers: [],
           console: window.console,
           allCombinations: combinations([1,2,3,4,5,6,7,8,9]).map(e => e.join('')),
           combos: {
@@ -599,9 +680,60 @@
               "43": [ "13456789" ],
               "44": [ "23456789" ]
             }
-          }
+          },
+          allCombos: [ {
+            "3": ['12','3'],
+            '4': ['13','4'],
+            '5': ['14','23','5'],
+            '6': ['15','24','6'],
+            "7": ['16','25','34','7'],
+            "8": ['18','26','35','8'],
+            "9": ['18','27','36','45','126','135','234','9'],
+            "10": ['19','28','37','46','127','136','145','235',"1234"],
+            "11": ['29','38','47','56','128','137','146','1235'],
+            "12": [],
+            "13":[],
+            "14":[],
+            "15":[],
+            "16":[],
+            "17":[],
+            "18":[],
+            "19":[],
+            "20":[],
+            "21":[],
+            "22":[],
+            "23":[],
+            "24":[],
+            "25":[],
+            "26":[],
+            "27":[],
+            "28":[],
+            "29":[],
+            "30":[],
+            "31":[],
+            "32":[],
+            "33":[],
+            "34":[],
+            "35":[],
+            "36":[],
+            "37":[],
+            "38":[],
+            "39":[],
+            "40":[],
+            "41":[],
+            "42":[],
+            "43":[],
+            "44":[],
+            "45":[]
+
+
+            }
+          ]
         }
-      });
+    });
+
+
+
     </script>
   </body>
 </html>
