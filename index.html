@@ -194,7 +194,7 @@
                 r.push(longest[x])
               }
             }
-            return r
+            return r || '&nbsp;'
           },
           missing: function() {
             if (this.activeCombos.length == 0){
@@ -207,7 +207,7 @@
                 missing.push(x)
               }
             }
-            return missing
+            return missing || '&nbsp;'
           },
           minMaxLength: function() {
             if (this.activeCombos.length == 0){
