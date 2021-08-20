@@ -67,6 +67,10 @@
         color: #666;
         background-color: #666;
       }
+      .hidden:before {
+          content: "\200D";
+          display:inline;
+       }
       .hidden-field {
         width: 12rem;
         display: inline-block;
@@ -88,7 +92,8 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="lib/combinations.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
   <body>
@@ -174,7 +179,7 @@
           possibilities: function() { return this.activeCombos.length },
           required: function() {
             if ( this.activeCombos.length == 0 ){
-              return []
+              return ''
             }
             let r = []
             var longest = this.activeCombos.reduce(
@@ -194,20 +199,20 @@
                 r.push(longest[x])
               }
             }
-            return r || '&nbsp;'
+            return r.join(',')
           },
           missing: function() {
             if (this.activeCombos.length == 0){
-              return [1,2,3,4,5,6,7,8,9]
+              return [1,2,3,4,5,6,7,8,9].join(',')
             }
-            let missing = []
+            let m = []
             for (let x=1;x < 10; x++){
               const found = this.activeCombos.some(combo => String(combo).includes(x));
               if ( !found ){
                 missing.push(x)
               }
             }
-            return missing || '&nbsp;'
+            return m.join(',')
           },
           minMaxLength: function() {
             if (this.activeCombos.length == 0){
@@ -411,11 +416,11 @@
               <div><label class="helper-label" :for="max_total_id">Max Total:</label> <input type="number" :id="max_total_id" v-model="maxTotal" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
               <div>
-                <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing.join(',')}}</span>
+                <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing}}</span>
                 <i v-on:click="toggleMissing" class="bi" v-bind:class="missingEye"></i>
               </div>
               <div>
-                <span class="hidden-field-label">Required:</span> <span v-bind:class="{hidden: hideRequiredField}" class="hidden-field">{{required.join(',')}}</span>
+                <span class="hidden-field-label">Required:</span> <span v-bind:class="{hidden: hideRequiredField}" class="hidden-field">{{required}}</span>
                 <i v-on:click="toggleRequired" class="bi" v-bind:class="requiredEye"></i>
               </div>
               <div>
