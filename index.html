@@ -410,19 +410,19 @@
               <div><label class="helper-label" :for="min_total_id">Min Total:</label> <input type="number" :id="min_total_id" v-model="minTotal" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <div><label class="helper-label" :for="max_total_id">Max Total:</label> <input type="number" :id="max_total_id" v-model="maxTotal" v-on:input="updateHelper" v-on:click="(e) => e.target.select()" /></div>
               <hr/>
-              <div v-bind:style="this.showMissing()">
+              <div>
                 <span class="hidden-field-label">Missing:</span> <span v-bind:class="{hidden: hideMissingField}" class="hidden-field">{{missing.join(',')}}</span>
                 <i v-on:click="toggleMissing" class="bi" v-bind:class="missingEye"></i>
               </div>
-              <div v-bind:style="this.showRequired()">
+              <div>
                 <span class="hidden-field-label">Required:</span> <span v-bind:class="{hidden: hideRequiredField}" class="hidden-field">{{required.join(',')}}</span>
                 <i v-on:click="toggleRequired" class="bi" v-bind:class="requiredEye"></i>
               </div>
-              <div v-bind:style="this.showSumInfo()">
+              <div>
                 <span class="hidden-field-label">Sum info:</span> <span v-bind:class="{hidden: hideSumField}" class="hidden-field">Min: {{minMaxSum.min}}; Max: {{minMaxSum.max}}</span>
                 <i v-on:click="toggleSumInfo" class="bi" v-bind:class="sumEye"></i>
               </div>
-              <div v-bind:style="this.showLength()">
+              <div>
                 <span class="hidden-field-label">Length info:</span> <span v-bind:class="{hidden: hideLengthField}" class="hidden-field">Min: {{minMaxLength.min}}; Max: {{minMaxLength.max}}</span>
                 <i v-on:click="toggleLength" class="bi" v-bind:class="lengthEye"></i>
               </div>
